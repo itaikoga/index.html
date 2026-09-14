@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -346,8 +345,8 @@
             resultContainer.style.display = "block";
             resultContainer.scrollIntoView({ behavior: 'smooth' });
 
-            // Gửi dữ liệu tự động về file Excel (Google Sheets) của thongphuongdoanh05@gmail.com
-            const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwYCqJNjXpjE2GH4Y2DbprgV2KJWZUYS8DgCpqelmc54CVuSSWqsFrQ2Veu8gF3FjWH/exec"; 
+            // Gửi dữ liệu tự động về Google Sheets với URL mới nhất
+            const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyV7AQxu8u2f1nMHO_Es-Ckbn_Qd4wwjM-zVoLpSvWLUodL7KIrZpdr2Jcp47wbHvt7/exec"; 
             
             let payload = {
                 timestamp: new Date().toLocaleString("vi-VN"),
@@ -358,7 +357,6 @@
                 general: evalResult.general
             };
 
-            // ĐÃ XÓA KHỐI IF CHẶN LỆNH Ở ĐÂY, GIỮ LẠI TRỰC TIẾP FETCH:
             fetch(GOOGLE_SHEET_API_URL, {
                 method: "POST",
                 mode: "no-cors",
