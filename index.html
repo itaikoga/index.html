@@ -303,7 +303,7 @@
             }
         };
 
-        function getRangeKey(score) {
+       function getRangeKey(score) {
             if (score <= 2) return "1-2";
             if (score <= 4) return "3-4";
             if (score <= 6) return "5-6";
@@ -358,17 +358,16 @@
                 general: evalResult.general
             };
 
-            if(GOOGLE_SHEET_API_URL !== "https://script.google.com/macros/s/AKfycbwYCqJNjXpjE2GH4Y2DbprgV2KJWZUYS8DgCpqelmc54CVuSSWqsFrQ2Veu8gF3FjWH/exec") {
-                fetch(GOOGLE_SHEET_API_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                }).catch(err => console.log("Lỗi gửi dữ liệu:", err));
-            }
+            // ĐÃ XÓA KHỐI IF CHẶN LỆNH Ở ĐÂY, GIỮ LẠI TRỰC TIẾP FETCH:
+            fetch(GOOGLE_SHEET_API_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                console.log("Đã gửi dữ liệu lên Google Sheets thành công!");
+            }).catch(err => console.log("Lỗi gửi dữ liệu:", err));
         }
     </script>
 </body>
 </html>
-
-```
