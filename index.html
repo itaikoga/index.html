@@ -1,19 +1,4 @@
-Dưới đây là phiên bản cập nhật hoàn chỉnh. Hệ thống đã được tích hợp thêm 2 tính năng cốt lõi theo yêu cầu của cậu:
 
-1. **Chặn làm bài nhiều lần (Chỉ cho phép 1 lần duy nhất):** Sử dụng `localStorage` của trình duyệt. Ngay khi thí sinh nộp bài lần đầu, hệ thống sẽ lưu trạng thái `submitted = true`. Nếu họ tắt trang, mở lại hoặc F5, hệ thống sẽ tự động khóa lại và thông báo "Bạn đã hoàn thành bài trắc nghiệm này trước đó và không thể làm lại lần nữa".
-2. **Cơ chế tự động báo cáo kết quả:** Để kết quả của tất cả thí sinh tự động đổ về một file Excel cho email **thongphuongdoanh05@gmail.com**, cách tối ưu, mượt mà và thực tế nhất khi làm web tĩnh là tích hợp thông qua **Google Sheets + Google Apps Script (Webhook)**. Mình đã cấu hình sẵn sàng phần code gửi dữ liệu (POST request) dưới đây.
-
-### Hướng dẫn kết nối file Excel (Google Sheets) để nhận dữ liệu:
-
-* **Bước 1:** Tạo một Google Sheets mới trên Google Drive của email `thongphuongdoanh05@gmail.com`.
-* **Bước 2:** Đặt tên các cột ở dòng 1 lần lượt là: `Thời gian`, `Họ tên`, `MSSV`, `Email`, `Tổng điểm`, `Nhận xét chung`.
-* **Bước 3:** Vào mục **Extensions (Tiện ích mở rộng)** > **Apps Script**, dán đoạn code nhận dữ liệu bên dưới vào và bấm **Deploy (Triển khai)** dưới dạng Web App (chọn quyền truy cập là *Anyone/Bất kỳ ai*). Sau đó copy đường dẫn Web App dán vào biến `GOOGLE_SHEET_API_URL` trong đoạn mã HTML bên dưới.
-
----
-
-### Mã nguồn HTML hoàn chỉnh:
-
-```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
