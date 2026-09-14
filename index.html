@@ -347,7 +347,7 @@
             resultContainer.scrollIntoView({ behavior: 'smooth' });
 
             // Gửi dữ liệu tự động về file Excel (Google Sheets) của thongphuongdoanh05@gmail.com
-            const GOOGLE_SHEET_API_URL = "ĐIỀN_LINK_WEB_APP_APPS_SCRIPT_VÀO_ĐÂY"; 
+            const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwYCqJNjXpjE2GH4Y2DbprgV2KJWZUYS8DgCpqelmc54CVuSSWqsFrQ2Veu8gF3FjWH/exec"; 
             
             let payload = {
                 timestamp: new Date().toLocaleString("vi-VN"),
@@ -358,7 +358,7 @@
                 general: evalResult.general
             };
 
-            if(GOOGLE_SHEET_API_URL !== "ĐIỀN_LINK_WEB_APP_APPS_SCRIPT_VÀO_ĐÂY") {
+            if(GOOGLE_SHEET_API_URL !== "https://script.google.com/macros/s/AKfycbwYCqJNjXpjE2GH4Y2DbprgV2KJWZUYS8DgCpqelmc54CVuSSWqsFrQ2Veu8gF3FjWH/exec") {
                 fetch(GOOGLE_SHEET_API_URL, {
                     method: "POST",
                     mode: "no-cors",
