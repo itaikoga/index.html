@@ -210,7 +210,7 @@
             <label class="option-label"><input type="radio" name="q1" value="2"> B. Giải thích lý do cần thay đổi, lắng nghe những khó khăn của nhân viên, tổ chức đào tạo và khuyến khích các phòng ban cùng đề xuất giải pháp.</label>
             <label class="option-label"><input type="radio" name="q1" value="1"> C. Giữ nguyên cách làm việc hiện tại và chờ nhân viên tự thích nghi với xu hướng bán hàng online.</label>
             <div class="feedback-box" id="feedback-q1"></div>
-            <button type="button" class="btn-main" onclick="submitQuestion(1)">Xác nhận câu 1</button>
+            <button type="button" class="btn-main" onclick="nextQuestion(1)">Tiếp tục câu 2</button>
         </div>
 
         <!-- Câu 2 -->
@@ -220,7 +220,7 @@
             <label class="option-label"><input type="radio" name="q2" value="1"> B. Phân tích tình hình, đưa ra một định hướng cụ thể và yêu cầu mọi người thực hiện để nhanh chóng ổn định tổ chức.</label>
             <label class="option-label"><input type="radio" name="q2" value="2"> C. Tham khảo ý kiến của các thành viên, sau đó lựa chọn phương án phù hợp nhất và triển khai một cách thận trọng.</label>
             <div class="feedback-box" id="feedback-q2"></div>
-            <button type="button" class="btn-main" onclick="submitQuestion(2)">Xác nhận câu 2</button>
+            <button type="button" class="btn-main" onclick="nextQuestion(2)">Tiếp tục câu 3</button>
         </div>
 
         <!-- Câu 3 -->
@@ -230,7 +230,7 @@
             <label class="option-label"><input type="radio" name="q3" value="1"> B. Ngăn bài viết vì lo ngại các em có thể bị bắt nạt hoặc chịu ảnh hưởng tiêu cực.</label>
             <label class="option-label"><input type="radio" name="q3" value="3"> C. Cho phép nhưng yêu cầu thay câu chuyện cá nhân bằng một nội dung an toàn hơn.</label>
             <div class="feedback-box" id="feedback-q3"></div>
-            <button type="button" class="btn-main" onclick="submitQuestion(3)">Xác nhận câu 3</button>
+            <button type="button" class="btn-main" onclick="nextQuestion(3)">Tiếp tục câu 4</button>
         </div>
 
         <!-- Câu 4 -->
@@ -240,7 +240,7 @@
             <label class="option-label"><input type="radio" name="q4" value="3"> B. Đánh giá năng lực, mức độ sẵn sàng và khó khăn của từng nhóm nhân viên trước khi lựa chọn cách lãnh đạo.</label>
             <label class="option-label"><input type="radio" name="q4" value="1"> C. Giữ nguyên cách quản lý hiện tại để tránh gây thêm xáo trộn.</label>
             <div class="feedback-box" id="feedback-q4"></div>
-            <button type="button" class="btn-main" onclick="submitQuestion(4)">Sẵn sàng bứt phá</button>
+            <button type="button" class="btn-main" onclick="submitFinalQuiz()">Sẵn sàng bứt phá</button>
         </div>
     </div>
 
@@ -274,7 +274,7 @@
         };
 
         let studentInfo = {};
-        let totalScore = 0;
+        let answers = { q1: 0, q2: 0, q3: 0, q4: 0 };
 
         function startQuiz() {
             let fullname = document.getElementById("fullname").value.trim();
@@ -293,9 +293,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzRbtUAqgPOfJxwUEDWMS5nLoZm7UUDCbNdybDPnh-vwm2xWB7w33rK52VgUu6ZOeDj/exec"; 
-
-        function submitQuestion(currentStep) {
+        function nextQuestion(currentStep) {
             let selected = document.querySelector(`input[name="q${currentStep}"]:checked`);
             if (!selected) {
                 alert("Vui lòng chọn đáp án cho câu hỏi này trước khi tiếp tục!");
@@ -303,72 +301,92 @@
             }
 
             let scoreVal = parseInt(selected.value);
-            totalScore += scoreVal;
+            answers[`q${currentStep}`] = scoreVal;
 
-            // Hiển thị điểm số/phản hồi ngay cho câu vừa chọn
             let feedbackBox = document.getElementById(`feedback-q${currentStep}`);
-            feedbackBox.innerHTML = `Bạn vừa đạt được: <b>+${scoreVal} điểm</b> cho câu này! Đang ghi nhận dữ liệu...`;
+            feedbackBox.innerHTML = `Bạn vừa đạt được: <b>+${scoreVal} điểm</b> cho câu này!`;
             feedbackBox.style.display = "block";
 
-            // Khóa các radio của câu này lại
             let radios = document.querySelectorAll(`input[name="q${currentStep}"]`);
             radios.forEach(r => r.disabled = true);
 
-            // Gửi dữ liệu ngay lập tức lên Google Sheets cho từng câu
-            let payload = {
-                timestamp: new Date().toLocaleString("vi-VN"),
-                fullname: studentInfo.fullname,
-                mssv: studentInfo.mssv,
-                email: studentInfo.email,
-                question: `Câu ${currentStep}`,
-                score: scoreVal,
-                runningTotal: totalScore
-            };
-
-            fetch(GOOGLE_SHEET_API_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            }).then(() => {
-                console.log(`Đã gửi câu ${currentStep} lên Google Sheets thành công!`);
-            }).catch(err => console.log("Lỗi gửi dữ liệu:", err));
-
-            // Chuyển hướng sang câu tiếp theo hoặc hiển thị kết quả tổng (nếu là câu cuối)
             setTimeout(() => {
-                if (currentStep < 4) {
-                    document.getElementById(`step-${currentStep}`).classList.remove("active");
-                    let nextStep = currentStep + 1;
-                    let nextElement = document.getElementById(`step-${nextStep}`);
-                    if (nextElement) {
-                        nextElement.classList.add("active");
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                } else {
-                    // Đã hoàn thành câu 4 -> Khóa trạng thái hoàn toàn & Hiện kết quả tổng kết
-                    localStorage.setItem("leadership_quiz_submitted", "true");
-
-                    let rangeKey = getRangeKey(totalScore);
-                    let evalResult = evaluationData[rangeKey];
-
-                    document.getElementById("total-score-display").innerHTML = `Thí sinh: ${studentInfo.fullname} (MSSV: ${studentInfo.mssv})<br>Tổng điểm cuối cùng: ${totalScore} / 12 điểm`;
-                    document.getElementById("eval-general").innerHTML = evalResult.general;
-                    document.getElementById("eval-foundation").innerHTML = evalResult.foundation;
-                    document.getElementById("eval-practical").innerHTML = evalResult.practical;
-                    
-                    document.getElementById("quiz-section").style.display = "none";
-                    let resultContainer = document.getElementById("result-container");
-                    resultContainer.style.display = "block";
-                    resultContainer.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById(`step-${currentStep}`).classList.remove("active");
+                let nextStep = currentStep + 1;
+                let nextElement = document.getElementById(`step-${nextStep}`);
+                if (nextElement) {
+                    nextElement.classList.add("active");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
-            }, 1200);
+            }, 1000);
+        }
+
+        const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzRbtUAqgPOfJxwUEDWMS5nLoZm7UUDCbNdybDPnh-vwm2xWB7w33rK52VgUu6ZOeDj/exec"; 
+
+        function submitFinalQuiz() {
+            let selected4 = document.querySelector('input[name="q4"]:checked');
+            if (!selected4) {
+                alert("Vui lòng chọn đáp án cho câu 4 trước khi nộp bài!");
+                return;
+            }
+            let scoreVal4 = parseInt(selected4.value);
+            answers.q4 = scoreVal4;
+
+            let feedbackBox4 = document.getElementById('feedback-q4');
+            feedbackBox4.innerHTML = `Bạn vừa đạt được: <b>+${scoreVal4} điểm</b> cho câu này!`;
+            feedbackBox4.style.display = "block";
+
+            let radios4 = document.querySelectorAll('input[name="q4"]');
+            radios4.forEach(r => r.disabled = true);
+
+            let totalScore = answers.q1 + answers.q2 + answers.q3 + answers.q4;
+
+            setTimeout(() => {
+                localStorage.setItem("leadership_quiz_submitted", "true");
+
+                let rangeKey = getRangeKey(totalScore);
+                let evalResult = evaluationData[rangeKey];
+
+                document.getElementById("total-score-display").innerHTML = `Thí sinh: ${studentInfo.fullname} (MSSV: ${studentInfo.mssv})<br>Tổng điểm cuối cùng: ${totalScore} / 12 điểm`;
+                document.getElementById("eval-general").innerHTML = evalResult.general;
+                document.getElementById("eval-foundation").innerHTML = evalResult.foundation;
+                document.getElementById("eval-practical").innerHTML = evalResult.practical;
+                
+                document.getElementById("quiz-section").style.display = "none";
+                let resultContainer = document.getElementById("result-container");
+                resultContainer.style.display = "block";
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+
+                // Gói gọn tất cả thông tin và điểm số vào MỘT payload duy nhất để ghi thành 1 hàng ngang trên Sheets
+                let payload = {
+                    timestamp: new Date().toLocaleString("vi-VN"),
+                    fullname: studentInfo.fullname,
+                    mssv: studentInfo.mssv,
+                    email: studentInfo.email,
+                    scoreQ1: answers.q1,
+                    scoreQ2: answers.q2,
+                    scoreQ3: answers.q3,
+                    scoreQ4: answers.q4,
+                    totalScore: totalScore,
+                    general: evalResult.general
+                };
+
+                fetch(GOOGLE_SHEET_API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                }).then(() => {
+                    console.log("Đã gửi toàn bộ dữ liệu hàng ngang lên Google Sheets thành công!");
+                }).catch(err => console.log("Lỗi gửi dữ liệu:", err));
+            }, 1000);
         }
 
         const evaluationData = {
             "1-2": {
                 general: "Bạn là một nhà lãnh đạo bảo thủ ! Bạn thích áp đặt hoặc buông xuôi cho nhân viên tự sinh tự diệt.",
                 foundation: "Hạn chế trong việc tiếp thu các khung lý thuyết hiện đại; chưa phân biệt được thách thức kỹ thuật và thách thức thích ứng, thường nhầm lẫn giữa ra lệnh độc đoán và quản trị hiệu quả.",
-                practical: "Thiếu sự linh hoạt trong ứng phó tình huống, dễ gây ra phản ứng kháng cự từ nhân viên, làm suy giảm tinh thần đội ngũ và không giải quyết được các vấn đề cốt lõi của tổ chức."
+                practical: "Thiếu sự linh hoạt trong ứng phó tình huống, dễ giao ra phản ứng kháng cự từ nhân viên, làm suy giảm tinh thần đội ngũ và không giải quyết được các vấn đề cốt lõi của tổ chức."
             },
             "3-4": {
                 general: "Bạn là một nhà lãnh đạo thiếu chính kiến ! Bạn ra quyết định theo cảm tính hoàn toàn, vừa cứng nhắc vừa ba phải.",
@@ -402,3 +420,5 @@
     </script>
 </body>
 </html>
+
+```
