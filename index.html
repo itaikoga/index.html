@@ -274,8 +274,8 @@
         };
 
         let studentInfo = {};
-        let scores = { q1: 0, q2: 0, q3: 0, q4: 0 };
-        const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzRbtUAqgPOfJxwUEDWMS5nLoZm7UUDCbNdybDPnh-vwm2xWB7w33rK52VgUu6ZOeDj/exec"; 
+        let scores = { q1: "", q2: "", q3: "", q4: "" };
+        const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxev7WKOtZAz1X69ACOpTaDrhxfUetgY22ZAUIW7PlyOPj0ZbVoE9Z8Wq1hRtOxgpBI/exec"; 
 
         function startQuiz() {
             let fullname = document.getElementById("fullname").value.trim();
@@ -294,18 +294,17 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Hàm gửi dữ liệu từng câu ngay khi hoàn thành lên Google Sheets theo hàng ngang
-        function sendProgressToSheet(currentStep, scoreVal) {
+        function sendToSheet(totalScore = "") {
             let payload = {
                 timestamp: new Date().toLocaleString("vi-VN"),
                 fullname: studentInfo.fullname,
                 mssv: studentInfo.mssv,
                 email: studentInfo.email,
-                step: currentStep, // Gửi kèm mốc câu hiện tại để phía Google Script nhận biết nếu cần ghi đè/cập nhật vào đúng dòng
                 scoreQ1: scores.q1,
                 scoreQ2: scores.q2,
                 scoreQ3: scores.q3,
-                scoreQ4: scores.q4
+                scoreQ4: scores.q4,
+                totalScore: totalScore
             };
 
             fetch(GOOGLE_SHEET_API_URL, {
@@ -314,7 +313,7 @@
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             }).then(() => {
-                console.log(`Đã cập nhật điểm Câu ${currentStep} lên Google Sheets thành công!`);
+                console.log("Đã cập nhật dòng ngang lên Google Sheets thành công!");
             }).catch(err => console.log("Lỗi gửi dữ liệu:", err));
         }
 
@@ -329,14 +328,14 @@
             scores[`q${currentStep}`] = scoreVal;
 
             let feedbackBox = document.getElementById(`feedback-q${currentStep}`);
-            feedbackBox.innerHTML = `Bạn vừa đạt được: <b>+${scoreVal} điểm</b> cho câu này! Đang đồng bộ...`;
+            feedbackBox.innerHTML = `Bạn vừa đạt được: <b>+${scoreVal} điểm</b> cho câu này!`;
             feedbackBox.style.display = "block";
 
             let radios = document.querySelectorAll(`input[name="q${currentStep}"]`);
             radios.forEach(r => r.disabled = true);
 
-            // Gửi dữ liệu điểm câu hiện tại lên Sheets ngay lập tức
-            sendProgressToSheet(currentStep, scoreVal);
+            // Gửi dữ liệu cập nhật ngang hàng ngay lập tức
+            sendToSheet();
 
             setTimeout(() => {
                 document.getElementById(`step-${currentStep}`).classList.remove("active");
@@ -365,10 +364,10 @@
             let radios4 = document.querySelectorAll('input[name="q4"]');
             radios4.forEach(r => r.disabled = true);
 
-            // Gửi nốt tiến trình câu 4 lên Sheets
-            sendProgressToSheet(4, scoreVal4);
+            let totalScore = parseInt(scores.q1) + parseInt(scores.q2) + parseInt(scores.q3) + parseInt(scores.q4);
 
-            let totalScore = scores.q1 + scores.q2 + scores.q3 + scores.q4;
+            // Gửi lần cuối kèm theo Tổng Điểm
+            sendToSheet(totalScore);
 
             setTimeout(() => {
                 localStorage.setItem("leadership_quiz_submitted", "true");
